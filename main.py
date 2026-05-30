@@ -13,8 +13,12 @@ def main():
     console.print(f"[green]报告目录：[/green]{settings.report_dir}")
     console.print("[bold green]PaperAgent 初始化成功！[/bold green]")
     
-    agent = PaperAgent()
-
+    try:
+        agent = PaperAgent()
+    except Exception as e:
+        console.print(f"[bold red]Agent 初始化失败：[/bold red]{e}")
+        return
+    
     while True:
         user_input = console.input("\n[bold cyan]User > [/bold cyan]")
 

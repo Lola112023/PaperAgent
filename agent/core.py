@@ -1,5 +1,6 @@
 from agent.memory import ConversationMemory
-
+from llm.client import LLMClient
+from agent.prompts import SYSTEM_PROMPT
 
 class PaperAgent:
     """
@@ -13,6 +14,7 @@ class PaperAgent:
 
     def __init__(self):
         self.memory = ConversationMemory()
+        self.llm = LLMClient()
 
     def run(self, user_input: str) -> str:
         """
@@ -27,7 +29,16 @@ class PaperAgent:
         """
         self.memory.add_user_message(user_input)
 
-        response = f"我已经收到你的问题：{user_input}\n当前是 Day 1 骨架版本，后续会接入 LLM 和工具调用。"
+        messages = [
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT,
+            }
+        ]
+
+        messages.extend(self.memory.get_messages())
+
+        response = self.llm.chat(messages)
 
         self.memory.add_assistant_message(response)
 

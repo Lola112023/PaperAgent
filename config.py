@@ -28,15 +28,20 @@ class Settings(BaseModel):
 
     # 日志目录
     log_dir: Path = base_dir / "logs"
+    llm_provider: str = os.getenv("LLM_PROVIDER", "deepseek")
 
-    # API Key，今天可以先为空
+    # LLM 配置
     openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
+    deepseek_api_key: str | None = os.getenv("DEEPSEEK_API_KEY")
+    deepseek_base_url: str = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+    llm_model: str = os.getenv("LLM_MODEL","deepseek-chat")
 
-    # 后续可以改成你实际使用的模型
-    llm_model: str = os.getenv("LLM_MODEL", "gpt-4o-mini")
+    # 生成参数
+    temperature: float = float(os.getenv("TEMPERATURE", "0.3"))
+    max_output_tokens: int = int(os.getenv("MAX_OUTPUT_TOKENS", "1200"))
 
     # Agent 最大循环步数
-    max_agent_steps: int = 5
+    max_agent_steps: int = int(os.getenv("MAX_AGENT_STEPS", "5"))
 
 
 settings = Settings()
