@@ -2,7 +2,23 @@ from config import settings
 from tools.registry import list_tools
 from agent.memory import ConversationMemory
 from tools.calculator import calculator
+from tools.file_reader import read_file
 
+
+def test_read_file_success():
+    result = read_file("data/example.md")
+    assert "PaperAgent" in result
+
+
+def test_read_file_not_exist():
+    result = read_file("data/not_exist.md")
+    assert "文件不存在" in result
+
+
+def test_read_file_not_supported():
+    result = read_file("config.py")
+    assert "不支持的文件类型" in result
+    
 
 def test_calculator_add():
     result = calculator("1 + 2")
@@ -22,7 +38,7 @@ def test_calculator_zero_division():
 def test_calculator_illegal_expression():
     result = calculator('__import__("os").system("dir")')
     assert "计算失败" in result
-    
+
 
 def test_settings():
     assert settings.project_name == "PaperAgent"

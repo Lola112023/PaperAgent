@@ -45,6 +45,13 @@ def main():
             console.print(f"\n[bold magenta]Tool > [/bold magenta]{result}")
 
             continue
+        if user_input.startswith("/read "):
+            file_path = user_input.removeprefix("/read ").strip()
+
+            result = run_tool("read_file", file_path=file_path)
+            console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
+
+            continue
 
         response = agent.run(user_input)
         console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
