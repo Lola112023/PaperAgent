@@ -1,6 +1,7 @@
 from rich.console import Console
 from config import settings
 from agent.core import PaperAgent
+from tools.registry import list_tools, run_tool
 
 console = Console()
 
@@ -27,6 +28,16 @@ def main():
             break
         # if user_input in ["\\help"]:
         #     console.print("[blue]你需要一些帮助[/blue]")
+        if user_input == "/tools":
+            tools = list_tools()
+
+            console.print("\n[bold yellow]当前可用工具：[/bold yellow]")
+            for index, tool in enumerate(tools, start=1):
+                console.print(
+                    f"{index}. [bold]{tool['name']}[/bold]：{tool['description']}"
+                )
+
+            continue
 
         response = agent.run(user_input)
         console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
