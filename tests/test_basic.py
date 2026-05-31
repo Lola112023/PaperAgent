@@ -1,7 +1,28 @@
 from config import settings
 from tools.registry import list_tools
 from agent.memory import ConversationMemory
+from tools.calculator import calculator
 
+
+def test_calculator_add():
+    result = calculator("1 + 2")
+    assert "3" in result
+
+
+def test_calculator_complex():
+    result = calculator("12 * (3 + 4)")
+    assert "84" in result
+
+
+def test_calculator_zero_division():
+    result = calculator("10 / 0")
+    assert "除数不能为 0" in result
+
+
+def test_calculator_illegal_expression():
+    result = calculator('__import__("os").system("dir")')
+    assert "计算失败" in result
+    
 
 def test_settings():
     assert settings.project_name == "PaperAgent"

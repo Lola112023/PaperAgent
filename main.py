@@ -38,6 +38,13 @@ def main():
                 )
 
             continue
+        if user_input.startswith("/calc "):
+            expression = user_input.removeprefix("/calc ").strip()
+
+            result = run_tool("calculator", expression=expression)
+            console.print(f"\n[bold magenta]Tool > [/bold magenta]{result}")
+
+            continue
 
         response = agent.run(user_input)
         console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
