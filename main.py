@@ -25,6 +25,8 @@ def main():
         if user_input.lower() in ["exit", "quit"]:
             console.print("[yellow]已退出 PaperAgent。[/yellow]")
             break
+        # if user_input in ["\\help"]:
+        #     console.print("[blue]你需要一些帮助[/blue]")
 
         response = agent.run(user_input)
         console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
