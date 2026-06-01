@@ -6,6 +6,8 @@ from tools.file_reader import read_file
 from tools.document_loader import load_document_preview
 from tools.chunk_tool import chunk_document_preview
 from tools.embedding_tool import embedding_preview
+from tools.index_tool import build_index
+from tools.search_tool import search_index
 
 TOOL_REGISTRY: dict[str, Tool] = {
     "calculator": Tool(
@@ -32,6 +34,16 @@ TOOL_REGISTRY: dict[str, Tool] = {
         name="embedding_preview",
         description="用于加载文档、切分文本，并生成 embedding 预览。",
         function=embedding_preview,
+    ),
+    "build_index": Tool(
+        name="build_index",
+        description="用于为 PDF / TXT / Markdown 文档建立本地向量索引。",
+        function=build_index,
+    ),
+    "search_index": Tool(
+        name="search_index",
+        description="用于从本地向量索引中检索相关文本片段。",
+        function=search_index,
     ),
     
 }

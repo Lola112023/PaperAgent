@@ -15,6 +15,9 @@ env/
 # VSCode
 .vscode/
 
+# Vector store
+storage/vector_store/
+
 # Logs
 logs/*.log
 

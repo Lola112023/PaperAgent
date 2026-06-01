@@ -20,6 +20,8 @@ def show_help():
     console.print("/load      加载文档并预览，例如：/load data/example.md")
     console.print("/chunk     加载并切分文档，例如：/chunk data/example.md")
     console.print("/embed     生成文档 embedding 预览，例如：/embed data/example.md")
+    console.print("/index     为文档建立索引，例如：/index data/uploaded/test.pdf")
+    console.print("/search    检索索引内容，例如：/search 论文的方法是什么")
 
     console.print("/history   查看当前对话历史")
     console.print("/clear     清空当前对话历史")
@@ -136,6 +138,22 @@ def main():
             file_path = user_input.removeprefix("/embed ").strip()
 
             result = run_tool("embedding_preview", file_path=file_path)
+            console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
+
+            continue
+
+        if user_input.startswith("/index "):
+            file_path = user_input.removeprefix("/index ").strip()
+
+            result = run_tool("build_index", file_path=file_path)
+            console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
+
+            continue
+
+        if user_input.startswith("/search "):
+            query = user_input.removeprefix("/search ").strip()
+
+            result = run_tool("search_index", query=query)
             console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
 
             continue

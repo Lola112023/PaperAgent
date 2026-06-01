@@ -114,3 +114,20 @@ def test_embed_query():
     embedding = embed_query("什么是 Agent？")
 
     assert embedding.shape[0] > 0
+from rag.vector_store import VectorStore
+from rag.retriever import retrieve
+from tools.index_tool import build_index
+
+
+def test_build_index():
+    result = build_index("data/example.md")
+    assert "索引建立成功" in result
+
+
+def test_retrieve():
+    build_index("data/example.md")
+    results = retrieve("PaperAgent 支持什么功能？", top_k=2)
+
+    assert len(results) >= 1
+    assert results[0].score > 0
+    

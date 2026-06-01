@@ -28,6 +28,9 @@ class Settings(BaseModel):
 
     # 日志目录
     log_dir: Path = base_dir / "logs"
+
+    storage_dir: Path = base_dir / "storage"
+    vector_store_dir: Path = storage_dir / "vector_store"
     llm_provider: str = os.getenv("LLM_PROVIDER", "deepseek")
 
     # LLM 配置
