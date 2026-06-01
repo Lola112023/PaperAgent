@@ -4,6 +4,7 @@ from tools.base import Tool
 from tools.calculator import calculator
 from tools.file_reader import read_file
 from tools.document_loader import load_document_preview
+from tools.chunk_tool import chunk_document_preview
 
 TOOL_REGISTRY: dict[str, Tool] = {
     "calculator": Tool(
@@ -20,6 +21,11 @@ TOOL_REGISTRY: dict[str, Tool] = {
         name="load_document",
         description="用于加载 PDF / TXT / Markdown 文档，并返回文本预览。",
         function=load_document_preview,
+    ),
+    "chunk_document": Tool(
+        name="chunk_document",
+        description="用于加载并切分 PDF / TXT / Markdown 文档。",
+        function=chunk_document_preview,
     ),
 }
 

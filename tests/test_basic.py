@@ -74,3 +74,28 @@ def test_load_markdown_document():
     assert len(chunks) == 1
     assert "PaperAgent" in chunks[0].text
     assert chunks[0].page is None
+
+from rag.loader import load_document
+from rag.chunker import split_documents, split_text
+
+
+def test_split_text_short():
+    chunks = split_text("hello world", chunk_size=100, overlap=10)
+    assert len(chunks) == 1
+    assert chunks[0] == "hello world"
+
+
+def test_split_text_long():
+    text = "a" * 2000
+    chunks = split_text(text, chunk_size=800, overlap=100)
+
+    assert len(chunks) == 3
+    assert len(chunks[0]) == 800
+
+
+def test_split_documents():
+    documents = load_document("data/example.md")
+    chunks = split_documents(documents, chunk_size=100, overlap=20)
+
+    assert len(chunks) >= 1
+    assert "PaperAgent" in chunks[0].text
