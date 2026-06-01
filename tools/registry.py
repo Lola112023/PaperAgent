@@ -3,6 +3,7 @@ from typing import Any
 from tools.base import Tool
 from tools.calculator import calculator
 from tools.file_reader import read_file
+from tools.document_loader import load_document_preview
 
 TOOL_REGISTRY: dict[str, Tool] = {
     "calculator": Tool(
@@ -14,6 +15,11 @@ TOOL_REGISTRY: dict[str, Tool] = {
         name="read_file",
         description="用于读取本地 txt / md 文件内容。",
         function=read_file,
+    ),
+    "load_document": Tool(
+        name="load_document",
+        description="用于加载 PDF / TXT / Markdown 文档，并返回文本预览。",
+        function=load_document_preview,
     ),
 }
 

@@ -4,6 +4,7 @@ from agent.parser import parse_agent_response
 from config import settings
 from llm.client import LLMClient
 from tools.registry import run_tool
+from utils.logger import get_logger
 
 class PaperAgent:
     """
@@ -18,6 +19,7 @@ class PaperAgent:
     def __init__(self):
         self.memory = ConversationMemory()
         self.llm = LLMClient()
+        self.logger = get_logger("PaperAgent")
 
     def run(self, user_input: str) -> str:
         """
@@ -30,6 +32,7 @@ class PaperAgent:
         4. 把工具结果交给 LLM；
         5. 返回最终答案。
         """
+        self.logger.info(f"User input: {user_input}")
 
         self.memory.add_user_message(user_input)
 
@@ -75,6 +78,8 @@ class PaperAgent:
                         f"如果已经可以回答用户，请输出 final_answer JSON。"
                     ),
                 })
+                self.logger.info(f"Tool call: {tool_name}, args: {tool_args}")
+                self.logger.info(f"Tool result: {tool_result[:300]}")
 
                 continue
 
@@ -83,6 +88,7 @@ class PaperAgent:
             return final_answer
 
         final_answer = "已达到最大 Agent 执行步数，任务未完成。"
+        self.logger.info(f"Final answer: {final_answer[:300]}")
         self.memory.add_assistant_message(final_answer)
         return final_answer
 

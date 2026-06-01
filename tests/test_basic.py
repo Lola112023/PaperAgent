@@ -3,7 +3,7 @@ from tools.registry import list_tools
 from agent.memory import ConversationMemory
 from tools.calculator import calculator
 from tools.file_reader import read_file
-
+from rag.loader import load_document
 
 def test_read_file_success():
     result = read_file("data/example.md")
@@ -64,3 +64,13 @@ def test_memory_add_message():
 def test_list_tools():
     tools = list_tools()
     assert len(tools) >= 2
+
+
+
+
+def test_load_markdown_document():
+    chunks = load_document("data/example.md")
+
+    assert len(chunks) == 1
+    assert "PaperAgent" in chunks[0].text
+    assert chunks[0].page is None
