@@ -99,3 +99,18 @@ def test_split_documents():
 
     assert len(chunks) >= 1
     assert "PaperAgent" in chunks[0].text
+
+from rag.embedder import embed_texts, embed_query
+
+
+def test_embed_texts():
+    embeddings = embed_texts(["PaperAgent 是一个智能体项目。", "这是第二段文本。"])
+
+    assert embeddings.shape[0] == 2
+    assert embeddings.shape[1] > 0
+
+
+def test_embed_query():
+    embedding = embed_query("什么是 Agent？")
+
+    assert embedding.shape[0] > 0

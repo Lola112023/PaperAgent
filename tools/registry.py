@@ -5,6 +5,7 @@ from tools.calculator import calculator
 from tools.file_reader import read_file
 from tools.document_loader import load_document_preview
 from tools.chunk_tool import chunk_document_preview
+from tools.embedding_tool import embedding_preview
 
 TOOL_REGISTRY: dict[str, Tool] = {
     "calculator": Tool(
@@ -27,6 +28,12 @@ TOOL_REGISTRY: dict[str, Tool] = {
         description="用于加载并切分 PDF / TXT / Markdown 文档。",
         function=chunk_document_preview,
     ),
+    "embedding_preview": Tool(
+        name="embedding_preview",
+        description="用于加载文档、切分文本，并生成 embedding 预览。",
+        function=embedding_preview,
+    ),
+    
 }
 
 

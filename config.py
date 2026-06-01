@@ -36,6 +36,11 @@ class Settings(BaseModel):
     deepseek_base_url: str = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
     llm_model: str = os.getenv("LLM_MODEL","deepseek-chat")
 
+    embedding_model: str = os.getenv(
+    "EMBEDDING_MODEL",
+    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+)
+
     # 生成参数
     temperature: float = float(os.getenv("TEMPERATURE", "0.3"))
     max_output_tokens: int = int(os.getenv("MAX_OUTPUT_TOKENS", "1200"))

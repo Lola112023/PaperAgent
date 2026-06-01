@@ -19,7 +19,8 @@ def show_help():
     console.print("/read      手动读取文件，例如：/read data/example.md")
     console.print("/load      加载文档并预览，例如：/load data/example.md")
     console.print("/chunk     加载并切分文档，例如：/chunk data/example.md")
-    
+    console.print("/embed     生成文档 embedding 预览，例如：/embed data/example.md")
+
     console.print("/history   查看当前对话历史")
     console.print("/clear     清空当前对话历史")
     console.print("exit       退出程序")
@@ -115,6 +116,7 @@ def main():
             console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
 
             continue
+
         if user_input.startswith("/load "):
             file_path = user_input.removeprefix("/load ").strip()
 
@@ -122,10 +124,18 @@ def main():
             console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
 
             continue
+
         if user_input.startswith("/chunk "):
             file_path = user_input.removeprefix("/chunk ").strip()
 
             result = run_tool("chunk_document", file_path=file_path)
+            console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
+
+            continue
+        if user_input.startswith("/embed "):
+            file_path = user_input.removeprefix("/embed ").strip()
+
+            result = run_tool("embedding_preview", file_path=file_path)
             console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
 
             continue
