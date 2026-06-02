@@ -35,3 +35,63 @@ PaperAgent 是一个面向论文阅读与学术汇报的智能分析 Agent。
 
 ```bash
 python main.py
+```
+## RAG Demo 使用流程
+
+### 1. 启动项目
+
+```bash
+python main.py
+```
+
+### 2. 查看帮助
+
+```text
+/help
+```
+
+### 3. 建立文档索引
+
+```text
+/index data/example.md
+```
+
+或者对 PDF 建立索引：
+
+```text
+/index data/uploaded/test.pdf
+```
+
+### 4. 查看索引状态
+
+```text
+/index_status
+```
+
+### 5. 手动检索
+
+```text
+/search PaperAgent 支持哪些功能？
+```
+
+### 6. 使用 Agent 自然问答
+
+```text
+/ask PaperAgent 当前实现了哪些模块？
+```
+
+或者直接输入：
+
+```text
+这篇论文的主要方法是什么？
+```
+
+系统会尝试自动调用检索工具，并基于检索结果生成回答。
+
+### 当前限制
+
+- 当前本地向量库默认只保存一份索引；
+- 如果重新执行 `/index`，会覆盖之前的索引；
+- 当前 RAG 问答依赖本地 embedding 模型；
+- 若未先建立索引，文档问答无法正常进行。
+

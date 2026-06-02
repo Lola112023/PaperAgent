@@ -6,7 +6,7 @@ from tools.file_reader import read_file
 from tools.document_loader import load_document_preview
 from tools.chunk_tool import chunk_document_preview
 from tools.embedding_tool import embedding_preview
-from tools.index_tool import build_index
+from tools.index_tool import build_index, index_status
 from tools.search_tool import search_index
 
 TOOL_REGISTRY: dict[str, Tool] = {
@@ -44,6 +44,11 @@ TOOL_REGISTRY: dict[str, Tool] = {
         name="search_index",
         description="用于从本地向量索引中检索相关文本片段。",
         function=search_index,
+    ),
+    "index_status": Tool(
+        name="index_status",
+        description="用于查看当前本地向量索引状态。",
+        function=index_status,
     ),
     
 }

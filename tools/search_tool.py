@@ -34,6 +34,12 @@ def search_index(query: str, top_k: int = 5) -> str:
             lines.append("")
 
         return "\n".join(lines)
-
+        
+    except FileNotFoundError:
+        return (
+            "检索失败：当前还没有建立向量索引。\n"
+            "请先使用 /index 文件路径 建立索引。\n"
+            "例如：/index data/example.md"
+        )
     except Exception as e:
         return f"检索失败：{e}"

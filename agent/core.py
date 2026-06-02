@@ -5,6 +5,7 @@ from config import settings
 from llm.client import LLMClient
 from tools.registry import run_tool
 from utils.logger import get_logger
+from rag.vector_store import VectorStore
 
 class PaperAgent:
     """
@@ -15,6 +16,8 @@ class PaperAgent:
     - 支持 calculator 和 read_file；
     - 支持最小 Agent Loop。
     """
+
+   
 
     def __init__(self):
         self.memory = ConversationMemory()
@@ -38,6 +41,20 @@ class PaperAgent:
 
         scratchpad: list[dict[str, str]] = []
         tool_trace: list[str] = []
+        if self._should_use_rag_first(user_input):
+            tool_result = run_tool("search_index", query=user_input, top_k=5)
+
+            scratchpad.append({
+                "role": "user",
+                "content": (
+                    f"用户的问题很可能需要基于当前已建立索引的文档回答。\n"
+                    f"我已经先调用 search_index 工具，结果如下：\n\n"
+                    f"{tool_result}\n\n"
+                    f"请严格基于以上检索结果回答用户问题。\n"
+                    f"如果检索结果足够，请输出 final_answer JSON。\n"
+                    f"如果检索结果不足，请在 final_answer 中明确说明。"
+                ),
+            })
 
         for step in range(settings.max_agent_steps):
             messages = self._build_messages(scratchpad)
@@ -131,3 +148,41 @@ class PaperAgent:
         """
 
         return self.memory.get_messages()
+    def _should_use_rag_first(self, user_input: str) -> bool:
+        """
+        判断当前问题是否应该优先走 RAG 检索。
+        """
+
+        keywords = [
+            "这篇论文",
+            "该论文",
+            "当前文档",
+            "这个文档",
+            "这个文件",
+            "这个PDF",
+            "pdf",
+            "PDF",
+            "附件",
+            "材料",
+            "文中",
+            "里面",
+            "其中",
+            "说啥",
+            "讲了什么",
+            "主要内容",
+            "总结",
+            "方法",
+            "实验",
+            "数据集",
+            "baseline",
+            "ablation",
+            "limitation",
+            "创新点",
+            "不足",
+        ]
+
+        if not any(keyword in user_input for keyword in keywords):
+            return False
+
+        store = VectorStore()
+        return store.exists()
