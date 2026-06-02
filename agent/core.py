@@ -37,6 +37,7 @@ class PaperAgent:
         self.memory.add_user_message(user_input)
 
         scratchpad: list[dict[str, str]] = []
+        tool_trace: list[str] = []
 
         for step in range(settings.max_agent_steps):
             messages = self._build_messages(scratchpad)
@@ -58,6 +59,8 @@ class PaperAgent:
             if response_type == "tool_call":
                 tool_name = parsed_response.get("tool_name")
                 tool_args = parsed_response.get("tool_args", {})
+                tool_trace.append(f"{tool_name}: {tool_args}")
+
 
                 if not isinstance(tool_args, dict):
                     tool_result = "工具参数格式错误：tool_args 必须是字典。"
@@ -87,11 +90,15 @@ class PaperAgent:
 
             final_answer = f"无法识别模型输出：{raw_response}"
             self.memory.add_assistant_message(final_answer)
+            if tool_trace:
+                self.logger.info(f"Tool trace: {tool_trace}")
             return final_answer
 
         final_answer = "已达到最大 Agent 执行步数，任务未完成。"
         self.logger.info(f"Final answer: {final_answer[:300]}")
         self.memory.add_assistant_message(final_answer)
+        if tool_trace:
+                self.logger.info(f"Tool trace: {tool_trace}")
         return final_answer
 
     def _build_messages(self, scratchpad: list[dict[str, str]]) -> list[dict[str, str]]:

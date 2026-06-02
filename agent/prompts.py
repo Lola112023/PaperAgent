@@ -70,3 +70,21 @@ SYSTEM_PROMPT = """
 8. 如果用户要求读取具体文件，必须调用 read_file；
 9. 如果工具无法满足任务，说明当前能力不足。
 """
+
+RAG_ANSWER_REQUIREMENT = """
+当你基于 search_index 的结果回答时，final_answer 的 content 必须尽量使用下面结构：
+
+结论：
+用 2-4 句话直接回答用户问题。
+
+依据：
+- 来源 / 页码 / chunk_id：说明支持结论的文档片段。
+- 来源 / 页码 / chunk_id：说明另一个支持点。
+
+补充说明：
+如果检索结果不足、没有明确证据或只能部分回答，需要明确说明不确定性。
+
+不要把“检索结果”四个字原样大量复述给用户，而要基于其中内容进行整理。
+"""
+
+SYSTEM_PROMPT = SYSTEM_PROMPT + "\n\n" + RAG_ANSWER_REQUIREMENT

@@ -22,6 +22,7 @@ def show_help():
     console.print("/embed     生成文档 embedding 预览，例如：/embed data/example.md")
     console.print("/index     为文档建立索引，例如：/index data/uploaded/test.pdf")
     console.print("/search    检索索引内容，例如：/search 论文的方法是什么")
+    console.print("/ask       通过 Agent 提问，例如：/ask 这篇论文的主要方法是什么")
 
     console.print("/history   查看当前对话历史")
     console.print("/clear     清空当前对话历史")
@@ -157,6 +158,15 @@ def main():
             console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
 
             continue
+        
+        if user_input.startswith("/ask "):
+            question = user_input.removeprefix("/ask ").strip()
+
+            response = agent.run(question)
+            console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
+
+            continue
+
 
         response = agent.run(user_input)
         console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
