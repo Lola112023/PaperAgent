@@ -72,10 +72,12 @@ class PaperAgent:
                 scratchpad.append({
                     "role": "user",
                     "content": (
-                        f"工具 {tool_name} 的执行结果如下：\n"
+                        f"工具 {tool_name} 的执行结果如下：\n\n"
                         f"{tool_result}\n\n"
-                        f"请根据工具结果，继续判断是否需要调用工具。"
-                        f"如果已经可以回答用户，请输出 final_answer JSON。"
+                        f"请基于以上工具结果继续完成任务。\n"
+                        f"如果信息已经足够，请输出 final_answer JSON。\n"
+                        f"如果信息仍不足，并且还需要其他工具，请继续输出 tool_call JSON。\n"
+                        f"注意：final_answer 中不要编造工具结果之外的信息。"
                     ),
                 })
                 self.logger.info(f"Tool call: {tool_name}, args: {tool_args}")
