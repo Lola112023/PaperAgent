@@ -29,7 +29,7 @@ PaperAgent 是一个面向论文阅读与学术汇报的智能分析 Agent。
 
 ## 当前进度
 
-Day 1：项目初始化、Git 管理、基础结构搭建。
+见docs\dev_log.md
 
 ## 运行方式
 
