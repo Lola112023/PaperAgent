@@ -1,50 +1,8 @@
+import re
 from dataclasses import dataclass
 
 from rag.loader import DocumentChunk
-import re
 
-
-SECTION_PATTERNS = [
-    r"^\s*abstract\s*$",
-    r"^\s*introduction\s*$",
-    r"^\s*related work\s*$",
-    r"^\s*method\s*$",
-    r"^\s*methodology\s*$",
-    r"^\s*approach\s*$",
-    r"^\s*experiments?\s*$",
-    r"^\s*evaluation\s*$",
-    r"^\s*results?\s*$",
-    r"^\s*discussion\s*$",
-    r"^\s*limitations?\s*$",
-    r"^\s*conclusion\s*$",
-    r"^\s*references\s*$",
-    r"^\s*\d+\.?\s+.+$",
-]
-
-
-def guess_section_title(line: str) -> str | None:
-    """
-    简单判断某一行是否像章节标题。
-    """
-
-    stripped = line.strip()
-
-    if not stripped:
-        return None
-
-    lower = stripped.lower()
-
-    for pattern in SECTION_PATTERNS:
-        if re.match(pattern, lower):
-            return stripped
-
-    # 很短、首字母大写、没有句号，也可能是标题
-    if len(stripped) <= 80 and "." not in stripped[-3:]:
-        words = stripped.split()
-        if 1 <= len(words) <= 10 and stripped[0].isupper():
-            return stripped
-
-    return None
 
 @dataclass
 class TextChunk:
@@ -56,21 +14,51 @@ class TextChunk:
     block_type: str = "content"
 
 
+@dataclass
+class SectionBlock:
+    title: str | None
+    text: str
+    source: str
+    page: int | None
+    block_type: str = "content"
+
+
+SECTION_PATTERNS = [
+    r"^abstract$",
+    r"^introduction$",
+    r"^related work$",
+    r"^background$",
+    r"^method$",
+    r"^methods$",
+    r"^methodology$",
+    r"^approach$",
+    r"^model$",
+    r"^experiments?$",
+    r"^experimental setup$",
+    r"^evaluation$",
+    r"^results?$",
+    r"^discussion$",
+    r"^limitations?$",
+    r"^conclusion$",
+    r"^conclusions$",
+    r"^references$",
+    r"^\d+\.?\s+[A-Z][A-Za-z0-9 ,:;()/-]{2,}$",
+    r"^[IVX]+\.?\s+[A-Z][A-Za-z0-9 ,:;()/-]{2,}$",
+]
+
+
 def split_documents(
     documents: list[DocumentChunk],
     chunk_size: int = 800,
     overlap: int = 100,
 ) -> list[TextChunk]:
     """
-    将文档内容切分成多个 TextChunk。
+    将 DocumentChunk 切分成 TextChunk。
 
-    参数：
-        documents: loader.py 返回的 DocumentChunk 列表
-        chunk_size: 每个 chunk 最大字符数
-        overlap: 相邻 chunk 的重叠字符数
-
-    返回：
-        list[TextChunk]
+    切分策略：
+    1. 先根据章节标题把文本聚合成 SectionBlock；
+    2. 每个 SectionBlock 内部如果过长，再按照 chunk_size 切；
+    3. 每个 chunk 保留 section_title、page、source、block_type 等 metadata。
     """
 
     if chunk_size <= 0:
@@ -82,37 +70,121 @@ def split_documents(
     if overlap >= chunk_size:
         raise ValueError("overlap 必须小于 chunk_size。")
 
+    sections = build_sections(documents)
+
     chunks: list[TextChunk] = []
     chunk_id = 0
 
-    current_section = None
-
-    for document in documents:
-        text = _normalize_text(document.text)
-
-        for line in text.splitlines():
-            guessed = guess_section_title(line)
-            if guessed:
-                current_section = guessed
-                break
-
-        pieces = split_text(text, chunk_size=chunk_size, overlap=overlap)
+    for section in sections:
+        pieces = split_text(
+            section.text,
+            chunk_size=chunk_size,
+            overlap=overlap,
+        )
 
         for piece in pieces:
             chunks.append(
                 TextChunk(
                     text=piece,
-                    source=document.source,
-                    page=document.page,
+                    source=section.source,
+                    page=section.page,
                     chunk_id=chunk_id,
-                    section_title=document.section_title or current_section,
-                    block_type=document.block_type,
+                    section_title=section.title,
+                    block_type=section.block_type,
                 )
             )
             chunk_id += 1
 
     return chunks
-# 如果没有 overlap，前后可能被切开。保留重叠可以缓解这个问题。
+
+
+def build_sections(documents: list[DocumentChunk]) -> list[SectionBlock]:
+    """
+    根据章节标题将文档内容聚合成 section。
+
+    注意：
+    - 这是轻量级规则，不是完美结构解析；
+    - 对格式规范的论文有效；
+    - 对复杂双栏 PDF、标题断行、扫描版 PDF 仍然有限。
+    """
+
+    sections: list[SectionBlock] = []
+
+    current_title: str | None = None
+    current_lines: list[str] = []
+    current_source: str | None = None
+    current_page: int | None = None
+    current_block_type: str = "content"
+
+    for document in documents:
+        text = _normalize_text(document.text)
+
+        if not text:
+            continue
+
+        source = document.source
+        page = document.page
+        block_type = getattr(document, "block_type", "content")
+        document_section = getattr(document, "section_title", None)
+
+        # 如果 loader 已经提供了 section_title，就优先使用
+        if document_section and not current_title:
+            current_title = document_section
+
+        lines = text.splitlines()
+
+        for line in lines:
+            stripped = line.strip()
+
+            if not stripped:
+                continue
+
+            guessed_title = guess_section_title(stripped)
+
+            if guessed_title:
+                # 遇到新标题，先保存旧 section
+                if current_lines:
+                    sections.append(
+                        SectionBlock(
+                            title=current_title,
+                            text="\n".join(current_lines).strip(),
+                            source=current_source or source,
+                            page=current_page,
+                            block_type=current_block_type,
+                        )
+                    )
+
+                    current_lines = []
+
+                current_title = guessed_title
+                current_source = source
+                current_page = page
+                current_block_type = block_type
+                continue
+
+            current_lines.append(stripped)
+
+            if current_source is None:
+                current_source = source
+
+            if current_page is None:
+                current_page = page
+
+            current_block_type = block_type
+
+    if current_lines:
+        sections.append(
+            SectionBlock(
+                title=current_title,
+                text="\n".join(current_lines).strip(),
+                source=current_source or "",
+                page=current_page,
+                block_type=current_block_type,
+            )
+        )
+
+    return sections
+
 
 def split_text(
     text: str,
@@ -120,10 +192,13 @@ def split_text(
     overlap: int = 100,
 ) -> list[str]:
     """
-    将单段文本切成多个字符串 chunk。
+    对单个 section 内部做固定长度切分。
+
+    这里仍然是按字符数切，但只在同一个 section 内部切，
+    不会轻易把 Introduction 和 Method 混在同一个 chunk 里。
     """
 
-    text = _normalize_text(text)#简单的清洗文本，去除首尾换行之类的
+    text = _normalize_text(text)
 
     if not text:
         return []
@@ -149,21 +224,43 @@ def split_text(
     return chunks
 
 
+def guess_section_title(line: str) -> str | None:
+    """
+    判断某一行是否像章节标题。
+    """
+
+    stripped = line.strip()
+
+    if not stripped:
+        return None
+
+    normalized = re.sub(r"\s+", " ", stripped)
+    lower = normalized.lower()
+
+    # 去掉末尾冒号
+    lower_no_colon = lower.rstrip(":")
+
+    for pattern in SECTION_PATTERNS:
+        if re.match(pattern, lower_no_colon):
+            return normalized
+
+    return None
+
+
 def _normalize_text(text: str) -> str:
     """
-    简单清洗文本。
-
-    作用：
-    1. 去掉多余空白；
-    2. 保留基本段落结构；
-    3. 避免连续空格过多。
+    清洗文本：
+    1. 去掉空行；
+    2. 合并多余空白；
+    3. 保留换行用于章节标题判断。
     """
 
     lines = text.splitlines()
     cleaned_lines = []
 
     for line in lines:
-        line = line.strip()
+        line = re.sub(r"\s+", " ", line).strip()
+
         if line:
             cleaned_lines.append(line)
 
