@@ -9,6 +9,9 @@ __pycache__/
 venv/
 env/
 
+# Local models
+models/
+
 # Environment variables
 .env
 

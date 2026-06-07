@@ -8,6 +8,7 @@ from tools.chunk_tool import chunk_document_preview
 from tools.embedding_tool import embedding_preview
 from tools.index_tool import build_index, index_status
 from tools.search_tool import search_index
+from tools.paper_summary import summarize_paper
 
 TOOL_REGISTRY: dict[str, Tool] = {
     "calculator": Tool(
@@ -50,6 +51,11 @@ TOOL_REGISTRY: dict[str, Tool] = {
         description="用于查看当前本地向量索引状态。",
         function=index_status,
     ),
+    "summarize_paper": Tool(
+    name="summarize_paper",
+    description="用于基于当前索引文档生成结构化论文总结。",
+    function=summarize_paper,
+),
     
 }
 

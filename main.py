@@ -24,6 +24,8 @@ def show_help():
     console.print("/search    检索索引内容，例如：/search 论文的方法是什么")
     console.print("/ask       通过 Agent 提问，例如：/ask 这篇论文的主要方法是什么")
     console.print("/index_status 查看当前向量索引状态")
+    console.print("/summarize  基于当前索引生成论文总结")
+
 
     console.print("/history   查看当前对话历史")
     console.print("/clear     清空当前对话历史")
@@ -169,6 +171,14 @@ def main():
             question = user_input.removeprefix("/ask ").strip()
 
             response = agent.run(question)
+            console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
+
+            continue
+        if user_input == "/summarize":
+            result = run_tool("summarize_paper")
+            response = agent.run(
+                "请基于下面的检索材料生成结构化论文总结：\n\n" + result
+            )
             console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
 
             continue

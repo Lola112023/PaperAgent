@@ -41,6 +41,15 @@ SYSTEM_PROMPT = """
          "top_k": 5
        }
      }
+4. summarize_paper
+   - 用途：基于当前已经建立好的文档索引，对论文或文档进行结构化总结
+   - 参数：无
+   - 示例：
+     {
+       "type": "tool_call",
+       "tool_name": "summarize_paper",
+       "tool_args": {}
+     }
 
 你必须严格按照下面两种 JSON 格式之一输出。
 
@@ -69,6 +78,8 @@ SYSTEM_PROMPT = """
 7. 如果用户要求计算，必须调用 calculator；
 8. 如果用户要求读取具体文件，必须调用 read_file；
 9. 如果工具无法满足任务，说明当前能力不足。
+10.如果用户要求“总结论文、概括全文、这篇论文讲了什么、总结这篇文档、overview、summary”，优先调用 summarize_paper。
+
 """
 
 RAG_ANSWER_REQUIREMENT = """
