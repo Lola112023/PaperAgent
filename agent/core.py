@@ -41,7 +41,25 @@ class PaperAgent:
 
         scratchpad: list[dict[str, str]] = []
         tool_trace: list[str] = []
-        if self._should_use_rag_first(user_input):
+        high_level_tool = self._select_high_level_tool(user_input)
+        self.memory.add_user_message(user_input)
+
+
+        if high_level_tool is not None:
+            tool_result = run_tool(high_level_tool)
+
+            scratchpad.append({
+                "role": "user",
+                "content": (
+                    f"用户的问题需要使用高级论文分析工具：{high_level_tool}。\n"
+                    f"我已经调用该工具，结果如下：\n\n"
+                    f"{tool_result}\n\n"
+                    f"请严格基于以上工具结果回答用户问题。\n"
+                    f"如果信息不足，请明确说明，不要编造。"
+                ),
+            })
+
+        elif self._should_use_rag_first(user_input):
             tool_result = run_tool("search_index", query=user_input, top_k=5)
 
             scratchpad.append({
@@ -134,6 +152,99 @@ class PaperAgent:
         messages.extend(scratchpad)
 
         return messages
+    def _select_high_level_tool(self, user_input: str) -> str | None:
+        """
+        根据用户输入判断是否应该优先调用高级论文分析工具。
+
+        注意：
+        高级工具的优先级应该高于普通 search_index。
+        """
+
+        text = user_input.lower()
+
+        summary_keywords = [
+            "总结",
+            "概括",
+            "概述",
+            "讲了什么",
+            "说了什么",
+            "主要内容",
+            "overview",
+            "summary",
+            "summarize",
+        ]
+
+        method_keywords = [
+            "方法",
+            "模型",
+            "框架",
+            "结构",
+            "pipeline",
+            "method",
+            "approach",
+            "framework",
+            "architecture",
+            "algorithm",
+        ]
+
+        experiment_keywords = [
+            "实验",
+            "实验设置",
+            "实验结果",
+            "数据集",
+            "指标",
+            "baseline",
+            "ablation",
+            "消融",
+            "evaluation",
+            "experiment",
+            "benchmark",
+            "metric",
+            "result",
+        ]
+
+        concern_keywords = [
+            "不足",
+            "缺点",
+            "局限",
+            "问题",
+            "concern",
+            "weakness",
+            "limitation",
+            "critique",
+            "审稿意见",
+        ]
+
+        ppt_keywords = [
+            "ppt",
+            "pre",
+            "汇报",
+            "大纲",
+            "presentation",
+            "slide",
+            "slides",
+            "outline",
+        ]
+
+        if any(keyword in text for keyword in ppt_keywords):
+            return "generate_ppt_outline"
+
+        if any(keyword in text for keyword in concern_keywords):
+            return "generate_concerns"
+
+        if any(keyword in text for keyword in experiment_keywords):
+            return "analyze_experiment"
+
+        if any(keyword in text for keyword in method_keywords):
+            return "analyze_method"
+
+        if any(keyword in text for keyword in summary_keywords):
+            return "summarize_paper"
+
+        return None
+
+
+
 
     def clear_memory(self):
         """
@@ -167,10 +278,6 @@ class PaperAgent:
             "文中",
             "里面",
             "其中",
-            "说啥",
-            "讲了什么",
-            "主要内容",
-            "总结",
             "方法",
             "实验",
             "数据集",
