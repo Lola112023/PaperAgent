@@ -25,6 +25,8 @@ def show_help():
     console.print("/ask       通过 Agent 提问，例如：/ask 这篇论文的主要方法是什么")
     console.print("/index_status 查看当前向量索引状态")
     console.print("/summarize  基于当前索引生成论文总结")
+    console.print("/pdf_profile  诊断 PDF 类型，例如：/pdf_profile data/uploaded/test.pdf")
+
 
 
     console.print("/history   查看当前对话历史")
@@ -181,6 +183,11 @@ def main():
             )
             console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
 
+            continue
+        if user_input.startswith("/pdf_profile "):
+            file_path = user_input.removeprefix("/pdf_profile ").strip()
+            result = run_tool("pdf_profile", file_path=file_path)
+            console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
             continue
 
 

@@ -32,6 +32,8 @@ def search_index(query: str, top_k: int = 5) -> str:
             lines.append("内容：")
             lines.append(item.text[:1200])
             lines.append("")
+            lines.append(f"章节：{item.section_title or '未知'}")
+            lines.append(f"类型：{item.block_type}")
 
         return "\n".join(lines)
         

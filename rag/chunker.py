@@ -1,23 +1,59 @@
 from dataclasses import dataclass
 
 from rag.loader import DocumentChunk
+import re
 
+
+SECTION_PATTERNS = [
+    r"^\s*abstract\s*$",
+    r"^\s*introduction\s*$",
+    r"^\s*related work\s*$",
+    r"^\s*method\s*$",
+    r"^\s*methodology\s*$",
+    r"^\s*approach\s*$",
+    r"^\s*experiments?\s*$",
+    r"^\s*evaluation\s*$",
+    r"^\s*results?\s*$",
+    r"^\s*discussion\s*$",
+    r"^\s*limitations?\s*$",
+    r"^\s*conclusion\s*$",
+    r"^\s*references\s*$",
+    r"^\s*\d+\.?\s+.+$",
+]
+
+
+def guess_section_title(line: str) -> str | None:
+    """
+    简单判断某一行是否像章节标题。
+    """
+
+    stripped = line.strip()
+
+    if not stripped:
+        return None
+
+    lower = stripped.lower()
+
+    for pattern in SECTION_PATTERNS:
+        if re.match(pattern, lower):
+            return stripped
+
+    # 很短、首字母大写、没有句号，也可能是标题
+    if len(stripped) <= 80 and "." not in stripped[-3:]:
+        words = stripped.split()
+        if 1 <= len(words) <= 10 and stripped[0].isupper():
+            return stripped
+
+    return None
 
 @dataclass
 class TextChunk:
-    """
-    文本切分后的片段。
-
-    text: chunk 文本内容
-    source: 来源文件路径
-    page: 页码，如果不是 PDF，则为 None
-    chunk_id: 当前 chunk 的编号
-    """
-
     text: str
     source: str
     page: int | None
     chunk_id: int
+    section_title: str | None = None
+    block_type: str = "content"
 
 
 def split_documents(
@@ -49,11 +85,16 @@ def split_documents(
     chunks: list[TextChunk] = []
     chunk_id = 0
 
+    current_section = None
+
     for document in documents:
         text = _normalize_text(document.text)
 
-        if not text:
-            continue
+        for line in text.splitlines():
+            guessed = guess_section_title(line)
+            if guessed:
+                current_section = guessed
+                break
 
         pieces = split_text(text, chunk_size=chunk_size, overlap=overlap)
 
@@ -64,6 +105,8 @@ def split_documents(
                     source=document.source,
                     page=document.page,
                     chunk_id=chunk_id,
+                    section_title=document.section_title or current_section,
+                    block_type=document.block_type,
                 )
             )
             chunk_id += 1

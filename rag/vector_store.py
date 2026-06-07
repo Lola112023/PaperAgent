@@ -55,8 +55,10 @@ class VectorStore:
             TextChunk(
                 text=item["text"],
                 source=item["source"],
-                page=item["page"],
+                page=item.get("page"),
                 chunk_id=item["chunk_id"],
+                section_title=item.get("section_title"),
+                block_type=item.get("block_type", "content"),
             )
             for item in raw_chunks
         ]

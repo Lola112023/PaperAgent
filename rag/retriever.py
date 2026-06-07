@@ -8,16 +8,13 @@ from rag.vector_store import VectorStore
 
 @dataclass
 class RetrievedChunk:
-    """
-    检索结果。
-    """
-
     text: str
     source: str
     page: int | None
     chunk_id: int
     score: float
-
+    section_title: str | None = None
+    block_type: str = "content"
 
 def retrieve(query: str, top_k: int = 5) -> list[RetrievedChunk]:
     """
@@ -46,12 +43,14 @@ def retrieve(query: str, top_k: int = 5) -> list[RetrievedChunk]:
 
         results.append(
             RetrievedChunk(
-                text=chunk.text,
-                source=chunk.source,
-                page=chunk.page,
-                chunk_id=chunk.chunk_id,
-                score=float(scores[index]),
-            )
+            text=chunk.text,
+            source=chunk.source,
+            page=chunk.page,
+            chunk_id=chunk.chunk_id,
+            score=float(scores[index]),
+            section_title=chunk.section_title,
+            block_type=chunk.block_type,
+        )
         )
 
     return results

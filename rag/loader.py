@@ -6,20 +6,31 @@ import fitz
 from config import settings
 
 
+from dataclasses import dataclass, field
+
+
 @dataclass
 class DocumentChunk:
     """
-    文档片段数据结构。
+    文档片段。
 
-    当前 Day 8 阶段：
-    - PDF 按页返回；
-    - TXT / Markdown 作为一个整体返回。
+    block_type:
+    - page_text
+    - title
+    - paragraph
+    - table
+    - formula
+    - figure_caption
+    - checklist
+    - reference
     """
 
     text: str
     source: str
     page: int | None = None
-
+    section_title: str | None = None
+    block_type: str = "page_text"
+    metadata: dict = field(default_factory=dict)
 
 _ALLOWED_SUFFIXES = {".pdf", ".txt", ".md"}
 
@@ -79,6 +90,7 @@ def _load_pdf(path: Path) -> list[DocumentChunk]:
                     text=text,
                     source=str(path),
                     page=page_index + 1,
+                    block_type="page_text",
                 )
             )
 

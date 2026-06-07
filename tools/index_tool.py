@@ -2,7 +2,7 @@ from rag.loader import load_document
 from rag.chunker import split_documents
 from rag.embedder import embed_texts
 from rag.vector_store import VectorStore
-
+from rag.filters import filter_chunks_for_paper_body
 
 def index_status() -> str:
     """
@@ -45,6 +45,7 @@ def build_index(file_path: str) -> str:
 
     try:
         documents = load_document(file_path)
+        documents = filter_chunks_for_paper_body(documents)
         chunks = split_documents(documents)
 
         if not chunks:
