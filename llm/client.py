@@ -3,6 +3,8 @@ from openai import OpenAI
 
 from config import settings
 
+class LLMError(RuntimeError):
+    pass
 
 class LLMClient:
     """
@@ -68,4 +70,4 @@ class LLMClient:
             return content
 
         except Exception as e:
-            return f"LLM 调用失败：{str(e)}"
+            raise LLMError(f"LLM 调用失败：{e}") from e

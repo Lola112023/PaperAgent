@@ -3,18 +3,21 @@ from agent.prompts import SYSTEM_PROMPT
 from agent.parser import parse_agent_response
 from config import settings
 from llm.client import LLMClient
-from tools.registry import run_tool
+from tools.registry import get_tool, run_tool
 from utils.logger import get_logger
 from rag.vector_store import VectorStore
+from llm.client import LLMClient, LLMError
 
 class PaperAgent:
     """
-    PaperAgent 核心类。
+    PaperAgent 核心 Agent。
 
-    Day 6 版本：
-    - 支持 LLM 自动判断是否调用工具；
-    - 支持 calculator 和 read_file；
-    - 支持最小 Agent Loop。
+    负责：
+    - 管理对话记忆；
+    - 根据任务选择论文分析工具或普通工具；
+    - 执行 RAG 检索；
+    - 驱动有限步数的 Agent Loop；
+    - 保存工具调用与最终回答日志。
     """
 
    
@@ -42,9 +45,12 @@ class PaperAgent:
         scratchpad: list[dict[str, str]] = []
         tool_trace: list[str] = []
         high_level_tool = self._select_high_level_tool(user_input)
-        self.memory.add_user_message(user_input)
 
-
+        if high_level_tool is not None and get_tool(high_level_tool) is None:
+            final_answer = f"当前尚未实现论文分析能力：{high_level_tool}"
+            self.memory.add_assistant_message(final_answer)
+            return final_answer
+        
         if high_level_tool is not None:
             tool_result = run_tool(high_level_tool)
 
@@ -77,7 +83,13 @@ class PaperAgent:
         for step in range(settings.max_agent_steps):
             messages = self._build_messages(scratchpad)
 
-            raw_response = self.llm.chat(messages)
+            try:
+                raw_response = self.llm.chat(messages)
+            except LLMError as e:
+                final_answer = str(e)
+                self.logger.exception(final_answer)
+                self.memory.add_assistant_message(final_answer)
+                return final_answer
             parsed_response = parse_agent_response(raw_response)
 
             response_type = parsed_response.get("type")
