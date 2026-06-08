@@ -26,6 +26,7 @@ def show_help():
     console.print("/index_status 查看当前向量索引状态")
     console.print("/summarize  基于当前索引生成论文总结")
     console.print("/pdf_profile  诊断 PDF 类型，例如：/pdf_profile data/uploaded/test.pdf")
+    console.print("/concern    生成当前索引论文的 concern 和不足分析")
 
 
 
@@ -188,6 +189,14 @@ def main():
             file_path = user_input.removeprefix("/pdf_profile ").strip()
             result = run_tool("pdf_profile", file_path=file_path)
             console.print(f"\n[bold magenta]Tool > [/bold magenta]\n{result}")
+            continue
+        if user_input == "/concern":
+            result = run_tool("generate_concerns")
+            response = agent.run(
+                "请基于下面的检索材料生成论文 concern：\n\n" + result
+            )
+            console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
+
             continue
 
 

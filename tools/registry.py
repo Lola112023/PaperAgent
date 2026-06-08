@@ -10,8 +10,15 @@ from tools.index_tool import build_index, index_status
 from tools.search_tool import search_index
 from tools.paper_summary import summarize_paper
 from tools.pdf_profile_tool import pdf_profile
+from tools.concern_generator import generate_concerns
 
 TOOL_REGISTRY: dict[str, Tool] = {
+    "generate_concerns": Tool(
+        name="generate_concerns",
+        description="用于基于当前索引文档生成论文 concern 和不足分析。",
+        function=generate_concerns,
+    ),
+
     "calculator": Tool(
         name="calculator",
         description="用于计算数学表达式，例如 12 * (3 + 4)。",

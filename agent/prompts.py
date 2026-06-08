@@ -50,6 +50,15 @@ SYSTEM_PROMPT = """
        "tool_name": "summarize_paper",
        "tool_args": {}
      }
+5. generate_concerns
+   - 用途：分析论文可能存在的不足、局限性和可改进点
+   - 参数：无
+   - 示例：
+     {
+       "type": "tool_call",
+       "tool_name": "generate_concerns",
+       "tool_args": {}
+     }
 
 你必须严格按照下面两种 JSON 格式之一输出。
 
@@ -79,6 +88,7 @@ SYSTEM_PROMPT = """
 8. 如果用户要求读取具体文件，必须调用 read_file；
 9. 如果工具无法满足任务，说明当前能力不足。
 10.如果用户要求“总结论文、概括全文、这篇论文讲了什么、总结这篇文档、overview、summary”，优先调用 summarize_paper。
+11.如果用户要求“提出 concern、不足、局限性、缺点、问题、审稿意见、critique、weakness、limitation”，优先调用 generate_concerns。
 
 """
 
