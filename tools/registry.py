@@ -11,8 +11,34 @@ from tools.search_tool import search_index
 from tools.paper_summary import summarize_paper
 from tools.pdf_profile_tool import pdf_profile
 from tools.concern_generator import generate_concerns
+from tools.method_analyzer import analyze_method
+from tools.experiment_analyzer import analyze_experiment
+from tools.concern_generator import generate_concerns
+from tools.ppt_outline import generate_ppt_outline
+
 
 TOOL_REGISTRY: dict[str, Tool] = {
+    "analyze_method": Tool(
+        name="analyze_method",
+        description="基于当前论文索引分析方法、模型结构和整体流程。",
+        function=analyze_method,
+    ),
+    "analyze_experiment": Tool(
+        name="analyze_experiment",
+        description="基于当前论文索引分析数据集、基线、指标和实验结果。",
+        function=analyze_experiment,
+    ),
+    "generate_concerns": Tool(
+        name="generate_concerns",
+        description="基于当前论文索引生成带证据的审稿 Concern。",
+        function=generate_concerns,
+    ),
+    "generate_ppt_outline": Tool(
+        name="generate_ppt_outline",
+        description="基于当前论文索引生成学术汇报 PPT 大纲。",
+        function=generate_ppt_outline,
+    ),
+
     "generate_concerns": Tool(
         name="generate_concerns",
         description="用于基于当前索引文档生成论文 concern 和不足分析。",

@@ -27,7 +27,10 @@ def show_help():
     console.print("/summarize  基于当前索引生成论文总结")
     console.print("/pdf_profile  诊断 PDF 类型，例如：/pdf_profile data/uploaded/test.pdf")
     console.print("/concern    生成当前索引论文的 concern 和不足分析")
-
+    console.print("/method     分析当前论文的方法")
+    console.print("/experiment 分析当前论文的实验")
+    console.print("/concerns   生成当前论文的审稿 Concern")
+    console.print("/ppt        生成当前论文的汇报大纲")
 
 
     console.print("/history   查看当前对话历史")
@@ -70,6 +73,12 @@ def show_history(agent: PaperAgent):
         console.print(f"\n[bold]{index}. {role}[/bold]")
         console.print(content)
 
+def run_analysis_command(agent: PaperAgent, tool_name: str) -> str:
+    evidence_prompt = run_tool(tool_name)
+    return agent.run(
+        "请严格按照以下工具材料和格式要求完成任务：\n\n"
+        + evidence_prompt
+    )
 
 def main():
     console.rule("[bold blue]PaperAgent")
@@ -197,6 +206,25 @@ def main():
             )
             console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
 
+            continue
+        if user_input == "/method":
+            response = run_analysis_command(agent, "analyze_method")
+            console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
+            continue
+
+        if user_input == "/experiment":
+            response = run_analysis_command(agent, "analyze_experiment")
+            console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
+            continue
+
+        if user_input == "/concerns":
+            response = run_analysis_command(agent, "generate_concerns")
+            console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
+            continue
+
+        if user_input == "/ppt":
+            response = run_analysis_command(agent, "generate_ppt_outline")
+            console.print(f"\n[bold magenta]PaperAgent > [/bold magenta]{response}")
             continue
 
 

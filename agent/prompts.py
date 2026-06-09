@@ -59,6 +59,42 @@ SYSTEM_PROMPT = """
        "tool_name": "generate_concerns",
        "tool_args": {}
      }
+6. analyze_method
+   - 用途：基于当前论文索引分析方法、模型结构和整体流程
+   - 参数：无
+   - 示例：
+     {
+       "type": "tool_call",
+       "tool_name": "analyze_method",
+       "tool_args": {}
+     }
+7. analyze_experiment
+   - 用途：基于当前论文索引分析数据集、基线、指标和实验结果
+   - 参数：无
+   - 示例：
+     {
+       "type": "tool_call",
+       "tool_name": "analyze_experiment",
+       "tool_args": {}
+     }
+8. generate_concerns
+   - 用途：基于当前论文索引生成带证据的审稿 Concern
+   - 参数：无
+   - 示例：
+     {
+       "type": "tool_call",
+       "tool_name": "generate_concerns",
+       "tool_args": {}
+     }
+8. generate_ppt_outline
+   - 用途：基于当前论文索引生成学术汇报 PPT 大纲
+   - 参数：无
+   - 示例：
+     {
+       "type": "tool_call",
+       "tool_name": "generate_ppt_outline",
+       "tool_args": {}
+     }
 
 你必须严格按照下面两种 JSON 格式之一输出。
 
@@ -89,7 +125,11 @@ SYSTEM_PROMPT = """
 9. 如果工具无法满足任务，说明当前能力不足。
 10.如果用户要求“总结论文、概括全文、这篇论文讲了什么、总结这篇文档、overview、summary”，优先调用 summarize_paper。
 11.如果用户要求“提出 concern、不足、局限性、缺点、问题、审稿意见、critique、weakness、limitation”，优先调用 generate_concerns。
-
+12. 用户要求分析论文方法时，优先调用 analyze_method。
+13. 用户要求分析实验时，优先调用 analyze_experiment。
+14. 用户要求提出不足、局限或审稿意见时，优先调用 generate_concerns。
+15. 用户要求汇报或 PPT 大纲时，优先调用 generate_ppt_outline。
+16. 高级论文分析工具返回的是证据材料和输出要求，最终答案必须继续由模型整理。
 """
 
 RAG_ANSWER_REQUIREMENT = """
